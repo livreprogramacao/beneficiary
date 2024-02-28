@@ -14,8 +14,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @RequestMapping("/api/v1")
 @RestController
@@ -34,9 +37,17 @@ public class BeneficiaryController {
         this.documentRepository = documentRepository;
     }
 
+    @GetMapping()
+    public List<BeneficiaryDto> findAll() {
+        log.info("Called method: findAll()");
+
+        List<Beneficiary> beneficiaryList = beneficiaryRepository.findAll();
+        return beneficiaryList.stream().map(beneficiaryMapper::beneficiaryToBeneficiaryDto).collect(Collectors.toList());
+    }
+
     @GetMapping("/beneficiary/{id}/documents")
-    public Set<DocumentDto> findDocumentsByBenefiaryId(@PathVariable Long beneficaryId) {
-        log.info(String.format("Called method: findDocumentsByBenefiaryId(%d)", beneficaryId));
+    public Set<DocumentDto> findDocumentsByBeneficiaryId(@PathVariable Long beneficaryId) {
+        log.info(String.format("Called method: findDocumentsByBeneficiaryId(%d)", beneficaryId));
 
         Set<Document> documentSet = documentRepository.findByBeneficiary_Id(beneficaryId);
         log.info(String.format("Found %d documents for this Beneficiary_Id=%d", documentSet.stream().count(), beneficaryId));
@@ -55,12 +66,15 @@ public class BeneficiaryController {
 
     @PostMapping
     public BeneficiaryDto saveBeneficiary(@RequestBody @NonNull @Valid BeneficiaryDto beneficiaryDto) {
+        log.info("Called method: saveBeneficiary()");
+
         Beneficiary beneficiaryEntity = beneficiaryMapper.beneficiaryDtoToBeneficiary(beneficiaryDto);
         return beneficiaryMapper.beneficiaryToBeneficiaryDto(beneficiaryRepository.save(beneficiaryEntity));
     }
 
     @PutMapping
     public BeneficiaryDto updateBeneficiary(@RequestBody @NonNull @Valid BeneficiaryDto beneficiaryDto) {
+        log.info("Called method: updateBeneficiary()");
 
         if (beneficiaryDto.getId() == null) {
             throw new IllegalArgumentException("Beneficiary ID is missing. Use the verb POST to create a new beneficiary");
