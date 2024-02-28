@@ -55,7 +55,7 @@ public class Beneficiary implements Serializable {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    protected Beneficiary() {
+    public Beneficiary() {
     }
 
     @Override

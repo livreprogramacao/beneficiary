@@ -7,17 +7,14 @@ public class DocumentDto implements Serializable {
 
     private final Long id;
 
-    private final String name;
-
     private String type;
 
     private String description;
 
     private BeneficiaryDto beneficiary;
 
-    public DocumentDto(Long id, String name, String type, String description, BeneficiaryDto beneficiary) {
+    public DocumentDto(Long id, String type, String description, BeneficiaryDto beneficiary) {
         this.id = id;
-        this.name = name;
         this.type = type;
         this.description = description;
         this.beneficiary = beneficiary;
@@ -39,7 +36,6 @@ public class DocumentDto implements Serializable {
     public String toString() {
         final StringBuffer sb = new StringBuffer("DocumentDto{");
         sb.append("id=").append(id);
-        sb.append(", name='").append(name).append('\'');
         sb.append(", type='").append(type).append('\'');
         sb.append(", description='").append(description).append('\'');
         sb.append(", beneficiary ID =").append(beneficiary.getId());
@@ -49,10 +45,6 @@ public class DocumentDto implements Serializable {
 
     public Long getId() {
         return id;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public String getType() {
