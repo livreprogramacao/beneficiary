@@ -48,6 +48,19 @@ public class Document implements Serializable {
     }
 
     @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("Document{");
+        sb.append("id=").append(id);
+        sb.append(", type='").append(type).append('\'');
+        sb.append(", description='").append(description).append('\'');
+        sb.append(", beneficiary=").append(beneficiary);
+        sb.append(", createdAt=").append(createdAt);
+        sb.append(", updatedAt=").append(updatedAt);
+        sb.append('}');
+        return sb.toString();
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Document document)) return false;
@@ -68,4 +81,27 @@ public class Document implements Serializable {
         return this;
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Beneficiary getBeneficiary() {
+        return beneficiary;
+    }
+
+    public void setBeneficiary(Beneficiary beneficiary) {
+        this.beneficiary = beneficiary;
+    }
 }
