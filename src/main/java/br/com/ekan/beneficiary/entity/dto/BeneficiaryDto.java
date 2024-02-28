@@ -10,12 +10,9 @@ public class BeneficiaryDto implements Serializable {
     private final Long id;
 
     private final String name;
-
-    private String phone;
-
-    private LocalDateTime dateOfBirth;
-
     private final Set<DocumentDto> documentDtos;
+    private final String phone;
+    private final LocalDateTime dateOfBirth;
 
     public BeneficiaryDto(Long id, String name, String phone, LocalDateTime dateOfBirth, Set<DocumentDto> documentDtos) {
         this.id = id;
@@ -39,14 +36,13 @@ public class BeneficiaryDto implements Serializable {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("BeneficiaryDto{");
-        sb.append("id=").append(id);
-        sb.append(", name='").append(name).append('\'');
-        sb.append(", phone='").append(phone).append('\'');
-        sb.append(", dateOfBirth=").append(dateOfBirth);
-        sb.append(", documentDtos has ").append(documentDtos.size()).append(" items");
-        sb.append('}');
-        return sb.toString();
+        String sb = "BeneficiaryDto{" + "id=" + id +
+                ", name='" + name + '\'' +
+                ", phone='" + phone + '\'' +
+                ", dateOfBirth=" + dateOfBirth +
+                ", documentDtos has " + documentDtos.size() + " items" +
+                '}';
+        return sb;
     }
 
     public Long getId() {

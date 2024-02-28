@@ -60,16 +60,15 @@ public class Beneficiary implements Serializable {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("Beneficiary{");
-        sb.append("id=").append(id);
-        sb.append(", name='").append(name).append('\'');
-        sb.append(", phone='").append(phone).append('\'');
-        sb.append(", dateOfBirth=").append(dateOfBirth);
-        sb.append(", documents=").append(documents);
-        sb.append(", createdAt=").append(createdAt);
-        sb.append(", updatedAt=").append(updatedAt);
-        sb.append('}');
-        return sb.toString();
+        String sb = "Beneficiary{" + "id=" + id +
+                ", name='" + name + '\'' +
+                ", phone='" + phone + '\'' +
+                ", dateOfBirth=" + dateOfBirth +
+                ", documents=" + documents +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
+        return sb;
     }
 
     @Override

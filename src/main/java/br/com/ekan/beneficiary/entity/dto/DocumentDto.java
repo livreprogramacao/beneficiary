@@ -7,11 +7,11 @@ public class DocumentDto implements Serializable {
 
     private final Long id;
 
-    private String type;
+    private final String type;
 
-    private String description;
+    private final String description;
 
-    private BeneficiaryDto beneficiary;
+    private final BeneficiaryDto beneficiary;
 
     public DocumentDto(Long id, String type, String description, BeneficiaryDto beneficiary) {
         this.id = id;
@@ -34,13 +34,12 @@ public class DocumentDto implements Serializable {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("DocumentDto{");
-        sb.append("id=").append(id);
-        sb.append(", type='").append(type).append('\'');
-        sb.append(", description='").append(description).append('\'');
-        sb.append(", beneficiary ID =").append(beneficiary.getId());
-        sb.append('}');
-        return sb.toString();
+        String sb = "DocumentDto{" + "id=" + id +
+                ", type='" + type + '\'' +
+                ", description='" + description + '\'' +
+                ", beneficiary ID =" + beneficiary.getId() +
+                '}';
+        return sb;
     }
 
     public Long getId() {

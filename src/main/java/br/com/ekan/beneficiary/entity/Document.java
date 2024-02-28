@@ -51,15 +51,14 @@ public class Document implements Serializable {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("Document{");
-        sb.append("id=").append(id);
-        sb.append(", type='").append(type).append('\'');
-        sb.append(", description='").append(description).append('\'');
-        sb.append(", beneficiary=").append(beneficiary);
-        sb.append(", createdAt=").append(createdAt);
-        sb.append(", updatedAt=").append(updatedAt);
-        sb.append('}');
-        return sb.toString();
+        String sb = "Document{" + "id=" + id +
+                ", type='" + type + '\'' +
+                ", description='" + description + '\'' +
+                ", beneficiary=" + beneficiary +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
+        return sb;
     }
 
     @Override
