@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
@@ -15,6 +16,7 @@ import java.util.Set;
 public class Beneficiary implements Serializable {
     public static final String TABLE_NAME = "beneficiary";
     public static final String COLUMN_ID_NAME = "id";
+    @Serial
     private static final long serialVersionUID = 5219187653860387370L;
 
     @Id
