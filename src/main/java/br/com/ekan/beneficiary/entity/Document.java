@@ -12,7 +12,9 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
-@Table(name = Document.TABLE_NAME)
+@Table(name = Document.TABLE_NAME, indexes = {
+        @Index(name = "idx_document_beneficiary_id", columnList = "beneficiary_id")
+})
 public class Document implements Serializable {
     public static final String TABLE_NAME = "document";
     public static final String COLUMN_ID_NAME = "id";

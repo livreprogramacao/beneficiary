@@ -1,6 +1,7 @@
 package br.com.ekan.beneficiary.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -12,7 +13,9 @@ import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Table(name = Beneficiary.TABLE_NAME)
+@Table(name = Beneficiary.TABLE_NAME, indexes = {
+        @Index(name = "idx_beneficiary_id", columnList = "id")
+})
 public class Beneficiary implements Serializable {
     public static final String TABLE_NAME = "beneficiary";
     public static final String COLUMN_ID_NAME = "id";
@@ -22,15 +25,19 @@ public class Beneficiary implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "beneficiary_seq")
     @SequenceGenerator(name = "beneficiary_seq")
+    @NotNull
     @Column(name = COLUMN_ID_NAME, nullable = false)
     private Long id;
 
+    @NotNull
     @Column(name = "nome")
     private String name;
 
+    @NotNull
     @Column(name = "telefone")
     private String phone;
 
+    @NotNull
     @Column(name = "dataNascimento")
     @CreationTimestamp
     private LocalDateTime dateOfBirth;
@@ -38,10 +45,12 @@ public class Beneficiary implements Serializable {
     @OneToMany(mappedBy = "id", fetch = FetchType.EAGER)
     private Set<Document> documents = new LinkedHashSet<>();
 
+    @NotNull
     @Column(name = "dataInclusao")
     @CreationTimestamp
     private LocalDateTime createdAt;
 
+    @NotNull
     @Column(name = "dataAtualizacao")
     @UpdateTimestamp
     private LocalDateTime updatedAt;
