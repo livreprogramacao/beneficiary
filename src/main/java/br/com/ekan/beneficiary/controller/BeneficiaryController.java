@@ -1,18 +1,19 @@
 package br.com.ekan.beneficiary.controller;
 
+import br.com.ekan.beneficiary.entity.Beneficiary;
 import br.com.ekan.beneficiary.entity.Document;
 import br.com.ekan.beneficiary.entity.dto.BeneficiaryDto;
 import br.com.ekan.beneficiary.entity.dto.DocumentDto;
 import br.com.ekan.beneficiary.entity.repository.BeneficiaryRepository;
 import br.com.ekan.beneficiary.entity.repository.DocumentRepository;
 import br.com.ekan.beneficiary.mapper.BeneficiaryMapper;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.lang.NonNull;
+import org.springframework.web.bind.annotation.*;
 
+import jakarta.persistence.EntityNotFoundException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -35,6 +36,8 @@ public class BeneficiaryController {
 
     @GetMapping("/beneficiary/{id}/documents")
     public Set<DocumentDto> findDocumentsByBenefiaryId(@PathVariable Long beneficaryId) {
+        log.info(String.format("Called method: findDocumentsByBenefiaryId(%d)", beneficaryId));
+
         Set<Document> documentSet = documentRepository.findByBeneficiary_Id(beneficaryId);
         log.info(String.format("Found %d documents for this Beneficiary_Id=%d", documentSet.stream().count(), beneficaryId));
 
@@ -49,4 +52,24 @@ public class BeneficiaryController {
         });
         return result;
     }
+    
+    @PostMapping
+    public BeneficiaryDto saveBeneficiary(@RequestBody @NonNull @Valid BeneficiaryDto beneficiaryDto) {
+        Beneficiary beneficiaryEntity = beneficiaryMapper.beneficiaryDtoToBeneficiary(beneficiaryDto);
+        return beneficiaryMapper.beneficiaryToBeneficiaryDto(beneficiaryRepository.save(beneficiaryEntity));
+    }
+
+    @PutMapping
+    public BeneficiaryDto updateBeneficiary(@RequestBody @NonNull @Valid BeneficiaryDto beneficiaryDto) {
+    
+        if (beneficiaryDto.getId() == null) {
+            throw new IllegalArgumentException("Beneficiary ID is missing. Use the verb POST to create a new beneficiary");
+        }
+        
+        Beneficiary beneficiaryEntity = beneficiaryRepository.findById(beneficiaryDto.getId()).orElseThrow(EntityNotFoundException::new);
+
+        beneficiaryMapper.updateBeneficiaryFromBeneficiaryDto(beneficiaryDto, beneficiaryEntity);
+        return beneficiaryMapper.beneficiaryToBeneficiaryDto(beneficiaryRepository.save(beneficiaryEntity));
+    }
+    
 }

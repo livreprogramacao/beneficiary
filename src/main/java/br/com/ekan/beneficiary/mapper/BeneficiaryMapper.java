@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = "spring")
 public interface BeneficiaryMapper {
 
-    Beneficiary beneficiaryDtoToProject(BeneficiaryDto beneficiaryDto);
+    Beneficiary beneficiaryDtoToBeneficiary(BeneficiaryDto beneficiaryDto);
 
     BeneficiaryDto beneficiaryToBeneficiaryDto(Beneficiary beneficiary);
 
