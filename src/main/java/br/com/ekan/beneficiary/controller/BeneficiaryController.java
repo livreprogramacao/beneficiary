@@ -3,8 +3,8 @@ package br.com.ekan.beneficiary.controller;
 import br.com.ekan.beneficiary.entity.Beneficiary;
 import br.com.ekan.beneficiary.entity.Document;
 import br.com.ekan.beneficiary.entity.dto.BeneficiaryDto;
-import br.com.ekan.beneficiary.entity.dto.SaveBeneficiaryDto;
 import br.com.ekan.beneficiary.entity.dto.DocumentDto;
+import br.com.ekan.beneficiary.entity.dto.SaveBeneficiaryDto;
 import br.com.ekan.beneficiary.entity.repository.BeneficiaryRepository;
 import br.com.ekan.beneficiary.entity.repository.DocumentRepository;
 import br.com.ekan.beneficiary.mapper.BeneficiaryMapper;
@@ -66,24 +66,10 @@ public class BeneficiaryController {
                 log.info("type=[" + dto.getType() + "],");
                 log.info("description=[" + dto.getDescription() + "]");
                 final Document document;
-                document = new Document(dto.getType(), dto.getDescription(), beneficiary);
+                document = new Document(null, dto.getType(), dto.getDescription(), beneficiary);
                 documentRepository.save(document);
-            }); // SELECT * FROM BENEFICIARIO ORDER BY ID; SELECT * FROM DOCUMENTO;
-
+            });
         }
-
-//
-//        document = new Document("2RGteste", "2testeRegistro Geral Estadual", beneficiary);
-//        documentRepository.save(document);
-//
-//        document = new Document("3RGteste", "3testeRegistro Geral Estadual", beneficiary);
-//        documentRepository.save(document);
-//
-//        document = new Document("4RGteste", "4testeRegistro Geral Estadual", beneficiary);
-//        documentRepository.save(document);
-
-//            Document document = new Document(dto.getType(), dto.getDescription(), beneficiaryEntity);
-//            documentRepository.save(document);
 
         return beneficiaryMapper.beneficiaryToBeneficiaryDto(beneficiaryEntity);
     }
@@ -97,8 +83,7 @@ public class BeneficiaryController {
             log.info("\nbeneficiaryDto.getDocuments() --------------------\n");
             beneficiaryDto.getDocuments().forEach(dto -> {
                 log.info("type=[" + dto.getType() + "], \n description=[" + dto.getDescription() + "]");
-            }); // SELECT * FROM BENEFICIARIO ORDER BY ID; SELECT * FROM DOCUMENTO;
-
+            });
         }
 
         if (beneficiaryDto.getId() == null) {
@@ -111,6 +96,20 @@ public class BeneficiaryController {
 
         Beneficiary beneficiaryEntity = beneficiaryRepository.findById(beneficiaryDto.getId()).orElseThrow(EntityNotFoundException::new);
         beneficiaryMapper.updateBeneficiaryFromBeneficiaryDto(beneficiaryDto, beneficiaryEntity);
+
+        Beneficiary beneficiary = beneficiaryRepository.findById(beneficiaryEntity.getId()).orElseThrow(EntityNotFoundException::new);
+        if (null != beneficiaryDto.getDocuments() && !beneficiaryDto.getDocuments().isEmpty()) {
+            log.info("saveBeneficiaryDto.getDocuments() --------------------");
+            beneficiaryDto.getDocuments().forEach(dto -> {
+                log.info("type=[" + dto.getType() + "],");
+                log.info("description=[" + dto.getDescription() + "]");
+                final Document document = documentRepository.findById(dto.getId()).orElseThrow(EntityNotFoundException::new);
+                document.setType(dto.getType());
+                document.setDescription(dto.getDescription());
+                documentRepository.save(document);
+            });
+        }
+
         return beneficiaryMapper.beneficiaryToBeneficiaryDto(beneficiaryRepository.save(beneficiaryEntity));
     }
 

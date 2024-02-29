@@ -17,13 +17,14 @@ import java.util.Objects;
 })
 public class Document implements Serializable {
     public static final String TABLE_NAME = "documento";
+    public static final String TABLE_NAME_SEQUENCE = Document.TABLE_NAME + "_seq";
     public static final String COLUMN_ID_NAME = "id";
     @Serial
     private static final long serialVersionUID = -6948016372363634385L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "document_seq")
-    @SequenceGenerator(name = "document_seq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "documento_seq")
+    @SequenceGenerator(name = "documento_seq", allocationSize = 1)
     @Column(name = COLUMN_ID_NAME, nullable = false)
     private Long id;
 
@@ -49,7 +50,8 @@ public class Document implements Serializable {
     public Document() {
     }
 
-    public Document(String type, String description, Beneficiary beneficiary) {
+    public Document(Long id, String type, String description, Beneficiary beneficiary) {
+        this.id = id;
         this.type = type;
         this.description = description;
         this.beneficiary = new Beneficiary();
