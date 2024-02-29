@@ -9,6 +9,7 @@ import br.com.ekan.beneficiary.entity.repository.BeneficiaryRepository;
 import br.com.ekan.beneficiary.entity.repository.DocumentRepository;
 import br.com.ekan.beneficiary.mapper.BeneficiaryMapper;
 import br.com.ekan.beneficiary.mapper.SaveBeneficiaryMapper;
+import br.com.ekan.beneficiary.service.BeneficiaryService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -29,53 +30,33 @@ public class BeneficiaryController {
     private static final Logger log = LoggerFactory.getLogger(BeneficiaryController.class);
 
     private final BeneficiaryMapper beneficiaryMapper;
-    private final BeneficiaryRepository beneficiaryRepository;
-    private final DocumentRepository documentRepository;
     private final SaveBeneficiaryMapper saveBeneficiaryMapper;
+    private BeneficiaryService service;
 
 
-    public BeneficiaryController(SaveBeneficiaryMapper saveMapper, BeneficiaryMapper mapper, BeneficiaryRepository repository, DocumentRepository documentRepository) {
+    public BeneficiaryController(SaveBeneficiaryMapper saveMapper, BeneficiaryMapper mapper, BeneficiaryService service) {
         log.info("--------------------");
         log.info("BeneficiaryController(...) method was call.\n");
 
         this.beneficiaryMapper = mapper;
         this.saveBeneficiaryMapper = saveMapper;
-        this.beneficiaryRepository = repository;
-        this.documentRepository = documentRepository;
+        this.service = service;
 
     }
 
     @PostMapping
-    public BeneficiaryDto saveBeneficiary(@RequestBody @NonNull @Valid SaveBeneficiaryDto saveBeneficiaryDto) {
+    public BeneficiaryDto saveResource(@RequestBody @NonNull @Valid SaveBeneficiaryDto saveBeneficiaryDto) {
         log.info("--------------------");
         log.info("saveBeneficiary() method was call.\n");
 
         log.info("\nDto --------------------");
         log.info(saveBeneficiaryDto.toString());
         log.info("");
-        Beneficiary beneficiaryEntity = beneficiaryRepository.save(saveBeneficiaryMapper.saveBeneficiaryDtoToBeneficiary(saveBeneficiaryDto));
-
-        log.info("\nEntity --------------------");
-        log.info(beneficiaryEntity.toString());
-        log.info("");
-
-        Beneficiary beneficiary = beneficiaryRepository.findById(beneficiaryEntity.getId()).orElseThrow(EntityNotFoundException::new);
-        if (null != saveBeneficiaryDto.getDocuments() && !saveBeneficiaryDto.getDocuments().isEmpty()) {
-            log.info("saveBeneficiaryDto.getDocuments() --------------------");
-            saveBeneficiaryDto.getDocuments().forEach(dto -> {
-                log.info("type=[" + dto.getType() + "],");
-                log.info("description=[" + dto.getDescription() + "]");
-                final Document document;
-                document = new Document(null, dto.getType(), dto.getDescription(), beneficiary);
-                documentRepository.save(document);
-            });
-        }
-
-        return beneficiaryMapper.beneficiaryToBeneficiaryDto(beneficiaryEntity);
+        return service.saveEntityBeneficiary(saveBeneficiaryDto);
     }
 
     @PutMapping
-    public BeneficiaryDto updateBeneficiary(@RequestBody @NonNull @Valid BeneficiaryDto beneficiaryDto) {
+    public BeneficiaryDto updateResource(@RequestBody @NonNull @Valid BeneficiaryDto beneficiaryDto) {
         log.info("--------------------");
         log.info("updateBeneficiary() method was call.\n");
 
@@ -94,23 +75,7 @@ public class BeneficiaryController {
         log.info(beneficiaryDto.toString());
         log.info("");
 
-        Beneficiary beneficiaryEntity = beneficiaryRepository.findById(beneficiaryDto.getId()).orElseThrow(EntityNotFoundException::new);
-        beneficiaryMapper.updateBeneficiaryFromBeneficiaryDto(beneficiaryDto, beneficiaryEntity);
-
-        Beneficiary beneficiary = beneficiaryRepository.findById(beneficiaryEntity.getId()).orElseThrow(EntityNotFoundException::new);
-        if (null != beneficiaryDto.getDocuments() && !beneficiaryDto.getDocuments().isEmpty()) {
-            log.info("saveBeneficiaryDto.getDocuments() --------------------");
-            beneficiaryDto.getDocuments().forEach(dto -> {
-                log.info("type=[" + dto.getType() + "],");
-                log.info("description=[" + dto.getDescription() + "]");
-                final Document document = documentRepository.findById(dto.getId()).orElseThrow(EntityNotFoundException::new);
-                document.setType(dto.getType());
-                document.setDescription(dto.getDescription());
-                documentRepository.save(document);
-            });
-        }
-
-        return beneficiaryMapper.beneficiaryToBeneficiaryDto(beneficiaryRepository.save(beneficiaryEntity));
+        return service.updateBeneficiaryEntity(beneficiaryDto);
     }
 
     @DeleteMapping("/{beneficiaryId}")
@@ -118,35 +83,24 @@ public class BeneficiaryController {
         log.info("--------------------");
         log.info("deleteBeneficiaryById() method was call.\n");
 
-        Optional<Beneficiary> beneficiaryEntity = beneficiaryRepository.findById(beneficiaryId);
-        beneficiaryEntity.ifPresent(beneficiaryRepository::delete);
+        service.deleteBeneficiaryEntity(beneficiaryId);
 
     }
 
     @GetMapping()
-    public List<BeneficiaryDto> findAll() {
+    public List<BeneficiaryDto> findAllResources() {
         log.info("--------------------");
         log.info("findAll() method was call.\n");
 
-        List<Beneficiary> beneficiaryList = beneficiaryRepository.findAll();
-        return beneficiaryList.stream().map(beneficiaryMapper::beneficiaryToBeneficiaryDto).collect(Collectors.toList());
+        return service.findAll();
     }
 
     @GetMapping("/{beneficiaryId}/documents")
-    public Set<DocumentDto> findDocumentsByBeneficiaryId(@PathVariable Long beneficiaryId) {
+    public Set<DocumentDto> findDocumentsByResourceId(@PathVariable Long beneficiaryId) {
         log.info("--------------------");
         log.info(String.format("findDocumentsByBeneficiaryId(%d) method was call.\n", beneficiaryId));
 
-        Set<Document> documentSet = documentRepository.findByBeneficiary_Id(beneficiaryId);
-        log.info("--------------------");
-        log.info(String.format("Found %d documents for this Beneficiary_Id=%d\n", documentSet.stream().count(), beneficiaryId));
-
-        Set<DocumentDto> result = new LinkedHashSet<>(3);
-        documentSet.stream().forEach(document -> {
-            DocumentDto documentDto = new DocumentDto(document.getId(), document.getType(), document.getDescription(), beneficiaryMapper.beneficiaryToBeneficiaryDto(document.getBeneficiary()));
-            result.add(documentDto);
-        });
-        return result;
+        return service.findDocumentEntityByBeneficiaryId(beneficiaryId);
     }
 
 }
