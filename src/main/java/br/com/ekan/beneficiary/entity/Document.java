@@ -13,7 +13,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = Document.TABLE_NAME, indexes = {
-        @Index(name = "idx_document_beneficiary_id", columnList = "beneficiary_id")
+        @Index(name = "idx_document_beneficiary_id", columnList = "beneficiario_id")
 })
 public class Document implements Serializable {
     public static final String TABLE_NAME = "documento";
@@ -34,7 +34,7 @@ public class Document implements Serializable {
     private String description;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "beneficiary_id", nullable = false)
+    @JoinColumn(name = "beneficiario_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Beneficiary beneficiary = new Beneficiary();
 
