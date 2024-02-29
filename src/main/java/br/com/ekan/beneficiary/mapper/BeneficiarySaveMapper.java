@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = "spring")
-public interface SaveBeneficiaryMapper {
+public interface BeneficiarySaveMapper {
 
     Beneficiary saveBeneficiaryDtoToBeneficiary(SaveBeneficiaryDto saveBeneficiaryDto);
 

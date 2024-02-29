@@ -8,12 +8,10 @@ import br.com.ekan.beneficiary.entity.dto.SaveBeneficiaryDto;
 import br.com.ekan.beneficiary.entity.repository.BeneficiaryRepository;
 import br.com.ekan.beneficiary.entity.repository.DocumentRepository;
 import br.com.ekan.beneficiary.mapper.BeneficiaryMapper;
-import br.com.ekan.beneficiary.mapper.SaveBeneficiaryMapper;
+import br.com.ekan.beneficiary.mapper.BeneficiarySaveMapper;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.LinkedHashSet;
@@ -29,23 +27,23 @@ public class BeneficiaryService {
     private static final Logger log = LoggerFactory.getLogger(BeneficiaryService.class);
 
     private final BeneficiaryMapper beneficiaryMapper;
+    private final BeneficiarySaveMapper beneficiarySaveMapper;
     private final BeneficiaryRepository beneficiaryRepository;
     private final DocumentRepository documentRepository;
-    private final SaveBeneficiaryMapper saveBeneficiaryMapper;
 
-    public BeneficiaryService(SaveBeneficiaryMapper saveMapper, BeneficiaryMapper mapper, BeneficiaryRepository repository, DocumentRepository documentRepository) {
+    public BeneficiaryService(BeneficiarySaveMapper saveMapper, BeneficiaryMapper mapper, BeneficiaryRepository repository, DocumentRepository documentRepository) {
         log.info("--------------------");
         log.info("BeneficiaryService(...) method was call.\n");
 
         this.beneficiaryMapper = mapper;
-        this.saveBeneficiaryMapper = saveMapper;
+        this.beneficiarySaveMapper = saveMapper;
         this.beneficiaryRepository = repository;
         this.documentRepository = documentRepository;
 
     }
 
-    public BeneficiaryDto saveEntityBeneficiary(SaveBeneficiaryDto saveBeneficiaryDto) {
-        Beneficiary beneficiaryEntity = beneficiaryRepository.save(saveBeneficiaryMapper.saveBeneficiaryDtoToBeneficiary(saveBeneficiaryDto));
+    public BeneficiaryDto save(SaveBeneficiaryDto saveBeneficiaryDto) {
+        Beneficiary beneficiaryEntity = beneficiaryRepository.save(beneficiarySaveMapper.saveBeneficiaryDtoToBeneficiary(saveBeneficiaryDto));
 
         log.info("\nEntity --------------------");
         log.info(beneficiaryEntity.toString());
@@ -66,11 +64,10 @@ public class BeneficiaryService {
         return beneficiaryMapper.beneficiaryToBeneficiaryDto(beneficiaryEntity);
     }
 
-    public BeneficiaryDto updateBeneficiaryEntity(BeneficiaryDto beneficiaryDto) {
+    public BeneficiaryDto update(BeneficiaryDto beneficiaryDto) {
         Beneficiary beneficiaryEntity = beneficiaryRepository.findById(beneficiaryDto.getId()).orElseThrow(EntityNotFoundException::new);
         beneficiaryMapper.updateBeneficiaryFromBeneficiaryDto(beneficiaryDto, beneficiaryEntity);
 
-        Beneficiary beneficiary = beneficiaryRepository.findById(beneficiaryEntity.getId()).orElseThrow(EntityNotFoundException::new);
         if (null != beneficiaryDto.getDocuments() && !beneficiaryDto.getDocuments().isEmpty()) {
             log.info("saveBeneficiaryDto.getDocuments() --------------------");
             beneficiaryDto.getDocuments().forEach(dto -> {
@@ -87,7 +84,7 @@ public class BeneficiaryService {
     }
 
 
-    public void deleteBeneficiaryEntity(Long beneficiaryId) {
+    public void delete(Long beneficiaryId) {
         Optional<Beneficiary> beneficiaryEntity = beneficiaryRepository.findById(beneficiaryId);
         beneficiaryEntity.ifPresent(beneficiaryRepository::delete);
     }
@@ -97,13 +94,13 @@ public class BeneficiaryService {
         return beneficiaryList.stream().map(beneficiaryMapper::beneficiaryToBeneficiaryDto).collect(Collectors.toList());
     }
 
-    public Set<DocumentDto> findDocumentEntityByBeneficiaryId(Long beneficiaryId) {
+    public Set<DocumentDto> findDocumentsByBeneficiaryId(Long beneficiaryId) {
         Set<Document> documentSet = documentRepository.findByBeneficiary_Id(beneficiaryId);
         log.info("--------------------");
-        log.info(String.format("Found %d documents for this Beneficiary_Id=%d\n", documentSet.stream().count(), beneficiaryId));
+        log.info(String.format("Found %d documents for this Beneficiary_Id=%d\n", (long) documentSet.size(), beneficiaryId));
 
         Set<DocumentDto> result = new LinkedHashSet<>(3);
-        documentSet.stream().forEach(document -> {
+        documentSet.forEach(document -> {
             DocumentDto documentDto = new DocumentDto(document.getId(), document.getType(), document.getDescription(), beneficiaryMapper.beneficiaryToBeneficiaryDto(document.getBeneficiary()));
             result.add(documentDto);
         });
