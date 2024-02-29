@@ -16,7 +16,7 @@ import java.util.Objects;
         @Index(name = "idx_document_beneficiary_id", columnList = "beneficiary_id")
 })
 public class Document implements Serializable {
-    public static final String TABLE_NAME = "document";
+    public static final String TABLE_NAME = "documento";
     public static final String COLUMN_ID_NAME = "id";
     @Serial
     private static final long serialVersionUID = -6948016372363634385L;

@@ -17,7 +17,7 @@ import java.util.Set;
         @Index(name = "idx_beneficiary_id", columnList = "id")
 })
 public class Beneficiary implements Serializable {
-    public static final String TABLE_NAME = "beneficiary";
+    public static final String TABLE_NAME = "beneficiario";
     public static final String COLUMN_ID_NAME = "id";
     @Serial
     private static final long serialVersionUID = 5219187653860387370L;

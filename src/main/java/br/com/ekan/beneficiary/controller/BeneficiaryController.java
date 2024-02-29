@@ -30,22 +30,28 @@ public class BeneficiaryController {
     private final BeneficiaryRepository beneficiaryRepository;
     private final DocumentRepository documentRepository;
 
+
     public BeneficiaryController(BeneficiaryMapper mapper, BeneficiaryRepository repository, DocumentRepository documentRepository) {
+        log.info("--------------------");
+        log.info("Called method: BeneficiaryController(...)\n");
+
         this.beneficiaryMapper = mapper;
         this.beneficiaryRepository = repository;
         this.documentRepository = documentRepository;
+
     }
 
     @PostMapping
     public BeneficiaryDto saveBeneficiary(@RequestBody @NonNull @Valid BeneficiaryDto beneficiaryDto) {
-        log.info("Called method: saveBeneficiary()");
+        log.info("--------------------");
+        log.info("Called method: saveBeneficiary()\n");
 
-        log.info("Dto --------------------");
+        log.info("\nDto --------------------");
         log.info(beneficiaryDto.toString());
         log.info("");
         Beneficiary beneficiaryEntity = beneficiaryRepository.save(beneficiaryMapper.beneficiaryDtoToBeneficiary(beneficiaryDto));
 
-        log.info("Entity --------------------");
+        log.info("\nEntity --------------------");
         log.info(beneficiaryEntity.toString());
         log.info("");
         beneficiaryDto.getDocuments().forEach(dto -> documentRepository.save(new Document(dto.getType(), dto.getDescription(), beneficiaryEntity)));
@@ -55,7 +61,8 @@ public class BeneficiaryController {
 
     @PutMapping
     public BeneficiaryDto updateBeneficiary(@RequestBody @NonNull @Valid BeneficiaryDto beneficiaryDto) {
-        log.info("Called method: updateBeneficiary()");
+        log.info("--------------------");
+        log.info("Called method: updateBeneficiary()\n");
 
         if (beneficiaryDto.getId() == null) {
             throw new IllegalArgumentException("Beneficiary ID is missing. Use the verb POST to create a new beneficiary");
@@ -72,7 +79,8 @@ public class BeneficiaryController {
 
     @DeleteMapping("/{beneficiaryId}")
     public void deleteBeneficiaryById(@PathVariable Long beneficiaryId) {
-        log.info("Called method: deleteBeneficiaryById()");
+        log.info("--------------------");
+        log.info("Called method: deleteBeneficiaryById(),\n");
 
         Optional<Beneficiary> beneficiaryEntity = beneficiaryRepository.findById(beneficiaryId);
         beneficiaryEntity.ifPresent(beneficiaryRepository::delete);
@@ -81,7 +89,8 @@ public class BeneficiaryController {
 
     @GetMapping()
     public List<BeneficiaryDto> findAll() {
-        log.info("Called method: findAll()");
+        log.info("--------------------");
+        log.info("Called method: findAll()\n");
 
         List<Beneficiary> beneficiaryList = beneficiaryRepository.findAll();
         return beneficiaryList.stream().map(beneficiaryMapper::beneficiaryToBeneficiaryDto).collect(Collectors.toList());
@@ -89,10 +98,12 @@ public class BeneficiaryController {
 
     @GetMapping("/{beneficiaryId}/documents")
     public Set<DocumentDto> findDocumentsByBeneficiaryId(@PathVariable Long beneficiaryId) {
-        log.info(String.format("Called method: findDocumentsByBeneficiaryId(%d)", beneficiaryId));
+        log.info("--------------------");
+        log.info(String.format("Called method: findDocumentsByBeneficiaryId(%d)\n", beneficiaryId));
 
         Set<Document> documentSet = documentRepository.findByBeneficiary_Id(beneficiaryId);
-        log.info(String.format("Found %d documents for this Beneficiary_Id=%d", documentSet.stream().count(), beneficiaryId));
+        log.info("--------------------");
+        log.info(String.format("Found %d documents for this Beneficiary_Id=%d\n", documentSet.stream().count(), beneficiaryId));
 
         Set<DocumentDto> result = new LinkedHashSet<>(3);
         documentSet.stream().forEach(document -> {
