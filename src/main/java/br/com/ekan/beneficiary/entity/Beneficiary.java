@@ -25,7 +25,6 @@ public class Beneficiary implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "beneficiary_seq")
     @SequenceGenerator(name = "beneficiary_seq")
-    @NotNull
     @Column(name = COLUMN_ID_NAME, nullable = false)
     private Long id;
 
@@ -45,12 +44,10 @@ public class Beneficiary implements Serializable {
     @OneToMany(mappedBy = "id", fetch = FetchType.EAGER)
     private Set<Document> documents = new LinkedHashSet<>();
 
-    @NotNull
     @Column(name = "dataInclusao")
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    @NotNull
     @Column(name = "dataAtualizacao")
     @UpdateTimestamp
     private LocalDateTime updatedAt;
@@ -64,7 +61,7 @@ public class Beneficiary implements Serializable {
                 ", name='" + name + '\'' +
                 ", phone='" + phone + '\'' +
                 ", dateOfBirth=" + dateOfBirth +
-                ", documents=" + documents +
+                ", size documents is =" + documents.stream().toList().size() +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 '}';

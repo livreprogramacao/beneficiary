@@ -10,16 +10,16 @@ public class BeneficiaryDto implements Serializable {
     private final Long id;
 
     private final String name;
-    private final Set<DocumentDto> documentDtos;
+    private final Set<DocumentDto> documents;
     private final String phone;
     private final LocalDateTime dateOfBirth;
 
-    public BeneficiaryDto(Long id, String name, String phone, LocalDateTime dateOfBirth, Set<DocumentDto> documentDtos) {
+    public BeneficiaryDto(Long id, String name, String phone, LocalDateTime dateOfBirth, Set<DocumentDto> set) {
         this.id = id;
         this.name = name;
         this.phone = phone;
         this.dateOfBirth = dateOfBirth;
-        this.documentDtos = documentDtos;
+        this.documents = set;
     }
 
     @Override
@@ -40,7 +40,7 @@ public class BeneficiaryDto implements Serializable {
                 ", name='" + name + '\'' +
                 ", phone='" + phone + '\'' +
                 ", dateOfBirth=" + dateOfBirth +
-                ", documentDtos has " + documentDtos.size() + " items" +
+                ", documents has " + documents.size() + " items" +
                 '}';
         return sb;
     }
@@ -61,7 +61,7 @@ public class BeneficiaryDto implements Serializable {
         return dateOfBirth;
     }
 
-    public Set<DocumentDto> getDocumentDtos() {
-        return documentDtos;
+    public Set<DocumentDto> getDocuments() {
+        return documents;
     }
 }

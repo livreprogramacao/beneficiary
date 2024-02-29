@@ -13,12 +13,13 @@ public interface BeneficiaryMapper {
 
     BeneficiaryDto beneficiaryToBeneficiaryDto(Beneficiary beneficiary);
 
-
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateBeneficiaryFromBeneficiaryDto(BeneficiaryDto beneficiaryDto, @MappingTarget Beneficiary beneficiary);
 
     @AfterMapping
-    default void linkTasks(@MappingTarget Beneficiary beneficiary) {
-        beneficiary.getDocuments().forEach(document -> document.setBeneficiary(beneficiary));
+    default void linkDocuments(@MappingTarget Beneficiary beneficiary) {
+        if (null != beneficiary.getDocuments()) {
+            beneficiary.getDocuments().forEach(document -> document.setBeneficiary(beneficiary));
+        }
     }
 }

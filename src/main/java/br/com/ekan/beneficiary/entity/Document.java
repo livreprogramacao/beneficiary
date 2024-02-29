@@ -46,7 +46,14 @@ public class Document implements Serializable {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    protected Document() {
+    public Document() {
+    }
+
+    public Document(String type, String description, Beneficiary beneficiary) {
+        this.type = type;
+        this.description = description;
+        this.beneficiary = new Beneficiary();
+        this.beneficiary.setId(beneficiary.getId());
     }
 
     @Override

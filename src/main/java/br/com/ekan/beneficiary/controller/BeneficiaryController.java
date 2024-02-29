@@ -14,9 +14,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -30,46 +30,26 @@ public class BeneficiaryController {
     private final BeneficiaryRepository beneficiaryRepository;
     private final DocumentRepository documentRepository;
 
-    public BeneficiaryController(BeneficiaryMapper mapper, BeneficiaryRepository repository,
-                                 DocumentRepository documentRepository) {
+    public BeneficiaryController(BeneficiaryMapper mapper, BeneficiaryRepository repository, DocumentRepository documentRepository) {
         this.beneficiaryMapper = mapper;
         this.beneficiaryRepository = repository;
         this.documentRepository = documentRepository;
     }
 
-    @GetMapping()
-    public List<BeneficiaryDto> findAll() {
-        log.info("Called method: findAll()");
-
-        List<Beneficiary> beneficiaryList = beneficiaryRepository.findAll();
-        return beneficiaryList.stream().map(beneficiaryMapper::beneficiaryToBeneficiaryDto).collect(Collectors.toList());
-    }
-
-    @GetMapping("/beneficiary/{id}/documents")
-    public Set<DocumentDto> findDocumentsByBeneficiaryId(@PathVariable Long beneficaryId) {
-        log.info(String.format("Called method: findDocumentsByBeneficiaryId(%d)", beneficaryId));
-
-        Set<Document> documentSet = documentRepository.findByBeneficiary_Id(beneficaryId);
-        log.info(String.format("Found %d documents for this Beneficiary_Id=%d", documentSet.stream().count(), beneficaryId));
-
-        Set<DocumentDto> result = new LinkedHashSet<>(3);
-        documentSet.stream().forEach(document -> {
-            DocumentDto documentDto = new DocumentDto(
-                    document.getId()
-                    , document.getType()
-                    , document.getDescription()
-                    , beneficiaryMapper.beneficiaryToBeneficiaryDto(document.getBeneficiary()));
-            result.add(documentDto);
-        });
-        return result;
-    }
-
     @PostMapping
     public BeneficiaryDto saveBeneficiary(@RequestBody @NonNull @Valid BeneficiaryDto beneficiaryDto) {
         log.info("Called method: saveBeneficiary()");
+        log.info("Dto --------------------");
+        log.info(beneficiaryDto.toString());
+        log.info("");
 
-        Beneficiary beneficiaryEntity = beneficiaryMapper.beneficiaryDtoToBeneficiary(beneficiaryDto);
-        return beneficiaryMapper.beneficiaryToBeneficiaryDto(beneficiaryRepository.save(beneficiaryEntity));
+        Beneficiary beneficiaryEntity = beneficiaryRepository.save(beneficiaryMapper.beneficiaryDtoToBeneficiary(beneficiaryDto));
+        log.info("Entity --------------------");
+        log.info(beneficiaryEntity.toString());
+        log.info("");
+
+        beneficiaryDto.getDocuments().forEach(dto -> documentRepository.save(new Document(dto.getType(), dto.getDescription(), beneficiaryEntity)));
+        return beneficiaryMapper.beneficiaryToBeneficiaryDto(beneficiaryEntity);
     }
 
     @PutMapping
@@ -80,10 +60,45 @@ public class BeneficiaryController {
             throw new IllegalArgumentException("Beneficiary ID is missing. Use the verb POST to create a new beneficiary");
         }
 
-        Beneficiary beneficiaryEntity = beneficiaryRepository.findById(beneficiaryDto.getId()).orElseThrow(EntityNotFoundException::new);
+        log.info("Dto --------------------");
+        log.info(beneficiaryDto.toString());
+        log.info("");
 
+        Beneficiary beneficiaryEntity = beneficiaryRepository.findById(beneficiaryDto.getId()).orElseThrow(EntityNotFoundException::new);
         beneficiaryMapper.updateBeneficiaryFromBeneficiaryDto(beneficiaryDto, beneficiaryEntity);
         return beneficiaryMapper.beneficiaryToBeneficiaryDto(beneficiaryRepository.save(beneficiaryEntity));
+    }
+
+    @DeleteMapping("/{beneficiaryId}")
+    public void deleteBeneficiaryById(@PathVariable Long beneficiaryId) {
+        log.info("Called method: deleteBeneficiaryById()");
+
+        Optional<Beneficiary> beneficiaryEntity = beneficiaryRepository.findById(beneficiaryId);
+        beneficiaryEntity.ifPresent(beneficiaryRepository::delete);
+
+    }
+
+    @GetMapping()
+    public List<BeneficiaryDto> findAll() {
+        log.info("Called method: findAll()");
+
+        List<Beneficiary> beneficiaryList = beneficiaryRepository.findAll();
+        return beneficiaryList.stream().map(beneficiaryMapper::beneficiaryToBeneficiaryDto).collect(Collectors.toList());
+    }
+
+    @GetMapping("/{beneficiaryId}/documents")
+    public Set<DocumentDto> findDocumentsByBeneficiaryId(@PathVariable Long beneficiaryId) {
+        log.info(String.format("Called method: findDocumentsByBeneficiaryId(%d)", beneficiaryId));
+
+        Set<Document> documentSet = documentRepository.findByBeneficiary_Id(beneficiaryId);
+        log.info(String.format("Found %d documents for this Beneficiary_Id=%d", documentSet.stream().count(), beneficiaryId));
+
+        Set<DocumentDto> result = new LinkedHashSet<>(3);
+        documentSet.stream().forEach(document -> {
+            DocumentDto documentDto = new DocumentDto(document.getId(), document.getType(), document.getDescription(), beneficiaryMapper.beneficiaryToBeneficiaryDto(document.getBeneficiary()));
+            result.add(documentDto);
+        });
+        return result;
     }
 
 }
