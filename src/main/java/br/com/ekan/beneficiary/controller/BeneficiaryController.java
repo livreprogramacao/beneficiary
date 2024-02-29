@@ -3,10 +3,12 @@ package br.com.ekan.beneficiary.controller;
 import br.com.ekan.beneficiary.entity.Beneficiary;
 import br.com.ekan.beneficiary.entity.Document;
 import br.com.ekan.beneficiary.entity.dto.BeneficiaryDto;
+import br.com.ekan.beneficiary.entity.dto.SaveBeneficiaryDto;
 import br.com.ekan.beneficiary.entity.dto.DocumentDto;
 import br.com.ekan.beneficiary.entity.repository.BeneficiaryRepository;
 import br.com.ekan.beneficiary.entity.repository.DocumentRepository;
 import br.com.ekan.beneficiary.mapper.BeneficiaryMapper;
+import br.com.ekan.beneficiary.mapper.SaveBeneficiaryMapper;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -29,32 +31,59 @@ public class BeneficiaryController {
     private final BeneficiaryMapper beneficiaryMapper;
     private final BeneficiaryRepository beneficiaryRepository;
     private final DocumentRepository documentRepository;
+    private final SaveBeneficiaryMapper saveBeneficiaryMapper;
 
 
-    public BeneficiaryController(BeneficiaryMapper mapper, BeneficiaryRepository repository, DocumentRepository documentRepository) {
+    public BeneficiaryController(SaveBeneficiaryMapper saveMapper, BeneficiaryMapper mapper, BeneficiaryRepository repository, DocumentRepository documentRepository) {
         log.info("--------------------");
-        log.info("Called method: BeneficiaryController(...)\n");
+        log.info("BeneficiaryController(...) method was call.\n");
 
         this.beneficiaryMapper = mapper;
+        this.saveBeneficiaryMapper = saveMapper;
         this.beneficiaryRepository = repository;
         this.documentRepository = documentRepository;
 
     }
 
     @PostMapping
-    public BeneficiaryDto saveBeneficiary(@RequestBody @NonNull @Valid BeneficiaryDto beneficiaryDto) {
+    public BeneficiaryDto saveBeneficiary(@RequestBody @NonNull @Valid SaveBeneficiaryDto saveBeneficiaryDto) {
         log.info("--------------------");
-        log.info("Called method: saveBeneficiary()\n");
+        log.info("saveBeneficiary() method was call.\n");
 
         log.info("\nDto --------------------");
-        log.info(beneficiaryDto.toString());
+        log.info(saveBeneficiaryDto.toString());
         log.info("");
-        Beneficiary beneficiaryEntity = beneficiaryRepository.save(beneficiaryMapper.beneficiaryDtoToBeneficiary(beneficiaryDto));
+        Beneficiary beneficiaryEntity = beneficiaryRepository.save(saveBeneficiaryMapper.saveBeneficiaryDtoToBeneficiary(saveBeneficiaryDto));
 
         log.info("\nEntity --------------------");
         log.info(beneficiaryEntity.toString());
         log.info("");
-        beneficiaryDto.getDocuments().forEach(dto -> documentRepository.save(new Document(dto.getType(), dto.getDescription(), beneficiaryEntity)));
+
+        Beneficiary beneficiary = beneficiaryRepository.findById(beneficiaryEntity.getId()).orElseThrow(EntityNotFoundException::new);
+        if (null != saveBeneficiaryDto.getDocuments() && !saveBeneficiaryDto.getDocuments().isEmpty()) {
+            log.info("saveBeneficiaryDto.getDocuments() --------------------");
+            saveBeneficiaryDto.getDocuments().forEach(dto -> {
+                log.info("type=[" + dto.getType() + "],");
+                log.info("description=[" + dto.getDescription() + "]");
+                final Document document;
+                document = new Document(dto.getType(), dto.getDescription(), beneficiary);
+                documentRepository.save(document);
+            }); // SELECT * FROM BENEFICIARIO ORDER BY ID; SELECT * FROM DOCUMENTO;
+
+        }
+
+//
+//        document = new Document("2RGteste", "2testeRegistro Geral Estadual", beneficiary);
+//        documentRepository.save(document);
+//
+//        document = new Document("3RGteste", "3testeRegistro Geral Estadual", beneficiary);
+//        documentRepository.save(document);
+//
+//        document = new Document("4RGteste", "4testeRegistro Geral Estadual", beneficiary);
+//        documentRepository.save(document);
+
+//            Document document = new Document(dto.getType(), dto.getDescription(), beneficiaryEntity);
+//            documentRepository.save(document);
 
         return beneficiaryMapper.beneficiaryToBeneficiaryDto(beneficiaryEntity);
     }
@@ -62,7 +91,15 @@ public class BeneficiaryController {
     @PutMapping
     public BeneficiaryDto updateBeneficiary(@RequestBody @NonNull @Valid BeneficiaryDto beneficiaryDto) {
         log.info("--------------------");
-        log.info("Called method: updateBeneficiary()\n");
+        log.info("updateBeneficiary() method was call.\n");
+
+        if (null != beneficiaryDto.getDocuments()) {
+            log.info("\nbeneficiaryDto.getDocuments() --------------------\n");
+            beneficiaryDto.getDocuments().forEach(dto -> {
+                log.info("type=[" + dto.getType() + "], \n description=[" + dto.getDescription() + "]");
+            }); // SELECT * FROM BENEFICIARIO ORDER BY ID; SELECT * FROM DOCUMENTO;
+
+        }
 
         if (beneficiaryDto.getId() == null) {
             throw new IllegalArgumentException("Beneficiary ID is missing. Use the verb POST to create a new beneficiary");
@@ -80,7 +117,7 @@ public class BeneficiaryController {
     @DeleteMapping("/{beneficiaryId}")
     public void deleteBeneficiaryById(@PathVariable Long beneficiaryId) {
         log.info("--------------------");
-        log.info("Called method: deleteBeneficiaryById(),\n");
+        log.info("deleteBeneficiaryById() method was call.\n");
 
         Optional<Beneficiary> beneficiaryEntity = beneficiaryRepository.findById(beneficiaryId);
         beneficiaryEntity.ifPresent(beneficiaryRepository::delete);
@@ -90,7 +127,7 @@ public class BeneficiaryController {
     @GetMapping()
     public List<BeneficiaryDto> findAll() {
         log.info("--------------------");
-        log.info("Called method: findAll()\n");
+        log.info("findAll() method was call.\n");
 
         List<Beneficiary> beneficiaryList = beneficiaryRepository.findAll();
         return beneficiaryList.stream().map(beneficiaryMapper::beneficiaryToBeneficiaryDto).collect(Collectors.toList());
@@ -99,7 +136,7 @@ public class BeneficiaryController {
     @GetMapping("/{beneficiaryId}/documents")
     public Set<DocumentDto> findDocumentsByBeneficiaryId(@PathVariable Long beneficiaryId) {
         log.info("--------------------");
-        log.info(String.format("Called method: findDocumentsByBeneficiaryId(%d)\n", beneficiaryId));
+        log.info(String.format("findDocumentsByBeneficiaryId(%d) method was call.\n", beneficiaryId));
 
         Set<Document> documentSet = documentRepository.findByBeneficiary_Id(beneficiaryId);
         log.info("--------------------");
