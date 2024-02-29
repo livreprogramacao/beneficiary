@@ -39,16 +39,17 @@ public class BeneficiaryController {
     @PostMapping
     public BeneficiaryDto saveBeneficiary(@RequestBody @NonNull @Valid BeneficiaryDto beneficiaryDto) {
         log.info("Called method: saveBeneficiary()");
+
         log.info("Dto --------------------");
         log.info(beneficiaryDto.toString());
         log.info("");
-
         Beneficiary beneficiaryEntity = beneficiaryRepository.save(beneficiaryMapper.beneficiaryDtoToBeneficiary(beneficiaryDto));
+
         log.info("Entity --------------------");
         log.info(beneficiaryEntity.toString());
         log.info("");
-
         beneficiaryDto.getDocuments().forEach(dto -> documentRepository.save(new Document(dto.getType(), dto.getDescription(), beneficiaryEntity)));
+
         return beneficiaryMapper.beneficiaryToBeneficiaryDto(beneficiaryEntity);
     }
 

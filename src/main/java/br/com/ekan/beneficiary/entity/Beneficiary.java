@@ -61,7 +61,7 @@ public class Beneficiary implements Serializable {
                 ", name='" + name + '\'' +
                 ", phone='" + phone + '\'' +
                 ", dateOfBirth=" + dateOfBirth +
-                ", size documents is =" + documents.stream().toList().size() +
+                ", size documents is =" + documents.stream().count() +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 '}';
